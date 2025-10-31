@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Team {
+  id         Int      @id @default(autoincrement())
+  name       String
+  players    Player[]
+  scores     Score[]
+
+  matchesAsTeam1  Match[] @relation("Team1")
+  matchesAsTeam2  Match[] @relation("Team2")
+  matchesWon      Match[] @relation("WinnerTeam")
+}
+
+
+model Player {
+  id      Int    @id @default(autoincrement())
+  name    String
+  teamId  Int
+  team    Team   @relation(fields: [teamId], references: [id])
+}
+
+model Match {
+  id           Int     @id @default(autoincrement())
+  team1Id      Int
+  team2Id      Int
+  oversLimit   Int
+  winnerTeamId Int?
+
+  team1        Team     @relation("Team1", fields: [team1Id], references: [id])
+  team2        Team     @relation("Team2", fields: [team2Id], references: [id])
+  winnerTeam   Team?    @relation("WinnerTeam", fields: [winnerTeamId], references: [id])
+
+  scores       Score[]
+}
+
+
+model Score {
+  id      Int   @id @default(autoincrement())
+  matchId Int
+  teamId  Int
+  runs    Int   @default(0)
+  wickets Int   @default(0)
+  overs   Int   @default(0)
+  balls   Int   @default(0)
+
+  match   Match @relation(fields: [matchId], references: [id])
+  team    Team  @relation(fields: [teamId], references: [id])
+}
