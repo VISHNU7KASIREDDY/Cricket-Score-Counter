@@ -23,6 +23,9 @@ model Team {
   matchesAsTeam1  Match[] @relation("Team1")
   matchesAsTeam2  Match[] @relation("Team2")
   matchesWon      Match[] @relation("WinnerTeam")
+
+  matchStats MatchPlayerStats[]
+
 }
 
 
@@ -31,6 +34,9 @@ model Player {
   name    String
   teamId  Int
   team    Team   @relation(fields: [teamId], references: [id])
+
+  matchStats MatchPlayerStats[]
+
 }
 
 model Match {
@@ -45,6 +51,8 @@ model Match {
   winnerTeam   Team?    @relation("WinnerTeam", fields: [winnerTeamId], references: [id])
 
   scores       Score[]
+playerStats MatchPlayerStats[]
+
 }
 
 
@@ -59,4 +67,29 @@ model Score {
 
   match   Match @relation(fields: [matchId], references: [id])
   team    Team  @relation(fields: [teamId], references: [id])
+}
+
+model MatchPlayerStats {
+  id            Int    @id @default(autoincrement())
+  matchId       Int
+  playerId      Int
+  teamId        Int
+
+  runsScored    Int    @default(0)
+  singles       Int    @default(0)
+  doubles       Int    @default(0)
+  triples       Int    @default(0)
+  fours         Int    @default(0)
+  sixes         Int    @default(0)
+  wicketsTaken  Int    @default(0)
+  economy       Float  @default(0)
+  numberOfOvers Float  @default(0)
+  battingStatus String @default("not_batting")
+  strikeRate    Float  @default(0)
+  numberOfBalls Int    @default(0)
+
+  match  Match  @relation(fields: [matchId], references: [id])
+  player Player @relation(fields: [playerId], references: [id])
+  team   Team   @relation(fields: [teamId], references: [id])
+
 }
